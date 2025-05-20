@@ -42,6 +42,7 @@ Port: 9229
 ## Service Features
 
 - **Docker**: The application runs in isolated containers using Docker, ensuring consistent environments across development and production.
+- **PostgresSQL + PostGIS**: This DB is used as the spatial database solution, combining the robust relational features of PostgreSQL with advanced geospatial capabilities provided by the PostGIS extension.
 - **ORM**: Database interactions are managed via an Object-Relational Mapping (ORM) tool, allowing you to work with database entities using TypeScript objects.
 - **Migrations**: Database schema changes are handled through migrations, enabling version-controlled and repeatable updates to the database structure.
 - **DI Container**: A Dependency Injection (DI) container is used to manage and inject dependencies, promoting modularity and testability.
