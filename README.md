@@ -10,11 +10,17 @@ A lightweight REST API built with Node.js and Express for managing geo locations
 - [Docker compose](https://docs.docker.com/compose/)(v2.x)
 
 ### Installation
-
+1. Copy `.env.example` -> `.env`
+2. Run these commands:
 ```bash
+npm i
 docker compose up
-npm run migration:run
 ```
+3. DB should sync automatically, if not run this:
+```bash
+docker exec -it api npm run migration:run
+```
+4. Go to http://localhost:3000/ to see links for docs/metrics...
 
 ### DB migrations
 Create migration from entities
