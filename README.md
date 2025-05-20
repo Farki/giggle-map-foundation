@@ -56,7 +56,7 @@ Port: 9229
 ## Scalability & Global Availability
 
 - **Performance:**
-    - Use Redis for caching frequent queries.
+    - Redis for caching frequent queries.
     - Optimize DB queries with indexes (PostGIS spatial indexes).
     - Use connection pooling.
 - **Scaling:**

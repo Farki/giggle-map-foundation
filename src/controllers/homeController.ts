@@ -9,5 +9,6 @@ export const homeController =
       environment: config.env,
       health: `http://localhost:${config.port}/health`,
       docs: `http://localhost:${config.port}/docs`,
+      metrics: `http://localhost:${config.port}/metrics`,
     });
   };

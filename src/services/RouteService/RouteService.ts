@@ -36,7 +36,6 @@ export default class RouteService {
     const to = this.extractPoint(toPlace.location.coordinates);
 
     const dummyPoints = this.generateDummyPointsBetween(from, to, 100);
-
     const rawPath = this.aStarPath(from, to, [from, ...dummyPoints, to]);
 
     if (!rawPath) {
@@ -81,7 +80,14 @@ export default class RouteService {
     return (distance / speedKmH) * 60;
   }
 
+  // A* Pathfinding Algorithm with dummy data
   private aStarPath(start: Point, end: Point, points: Point[]): Point[] | null {
+    const getKey = ({ lat, lng }: Point) =>
+      `${lat.toFixed(6)}:${lng.toFixed(6)}`;
+    const pointList = points;
+    const pointMap = new Map<string, number>();
+    pointList.forEach((p, i) => pointMap.set(getKey(p), i));
+
     const startNode: Node = {
       point: start,
       g: 0,
@@ -92,8 +98,6 @@ export default class RouteService {
 
     const openSet: Node[] = [startNode];
     const closedSet: Set<string> = new Set();
-    const getKey = ({ lat, lng }: Point) =>
-      `${lat.toFixed(6)}:${lng.toFixed(6)}`;
 
     while (openSet.length > 0) {
       openSet.sort((a, b) => a.f - b.f);
@@ -104,9 +108,18 @@ export default class RouteService {
         return this.reconstructPath(current);
       }
 
-      for (const neighborPoint of points) {
+      const idx = pointMap.get(getKey(current.point));
+      if (idx === undefined) continue;
+
+      // Only consider immediate neighbors
+      const neighborIndices = [idx - 1, idx + 1].filter(
+        (i) => i >= 0 && i < pointList.length,
+      );
+
+      for (const ni of neighborIndices) {
+        const neighborPoint = pointList[ni];
         const key = getKey(neighborPoint);
-        if (key === getKey(current.point) || closedSet.has(key)) continue;
+        if (closedSet.has(key)) continue;
 
         const tentativeG =
           current.g + this.heuristic(current.point, neighborPoint);
