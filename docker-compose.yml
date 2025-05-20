@@ -1,0 +1,25 @@
+#Used for multiplatform local development only
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./:/app:delegated
+    command: npm run debug
+
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
