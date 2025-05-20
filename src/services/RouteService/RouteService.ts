@@ -35,7 +35,7 @@ export default class RouteService {
     const from = this.extractPoint(fromPlace.location.coordinates);
     const to = this.extractPoint(toPlace.location.coordinates);
 
-    const dummyPoints = this.generateDummyPointsBetween(from, to, 1000);
+    const dummyPoints = this.generateDummyPointsBetween(from, to, 100);
 
     const rawPath = this.aStarPath(from, to, [from, ...dummyPoints, to]);
 

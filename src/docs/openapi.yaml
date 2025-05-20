@@ -1,0 +1,286 @@
+openapi: 3.0.0
+info:
+  title: Giggle Map API
+  version: 1.0.0
+paths:
+  /:
+    get:
+      summary: Home endpoint
+      description: Returns service metadata and links to health and docs endpoints.
+      tags:
+        - Home
+      responses:
+        200:
+          description: Service metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                  environment:
+                    type: string
+                  health:
+                    type: string
+                  docs:
+                    type: string
+  /health:
+    get:
+      summary: Health check
+      description: Returns service health status for k8s readiness probes
+      tags:
+        - General
+      responses:
+        200:
+          description: Returns service health status for k8s readiness probes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  services:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                      redis:
+                        type: string
+  /metrics:
+    get:
+      summary: Prometheus metrics
+      description: Exposes application metrics in Prometheus format for monitoring.
+      tags:
+        - General
+      responses:
+        200:
+          description: Prometheus metrics output
+          content:
+            text/plain:
+              schema:
+                type: string
+  /v1/places:
+    get:
+      summary: Get a list of places
+      tags:
+        - Places
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Number of items per page
+      responses:
+        200:
+          description: List of places
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Place'
+    post:
+      summary: Create a new place
+      tags:
+        - Places
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceInput'
+      responses:
+        201:
+          description: Place created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Place'
+  /v1/places/{id}:
+    get:
+      summary: Get a place by ID
+      tags:
+        - Places
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Place ID
+      responses:
+        200:
+          description: Place found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Place'
+        404:
+          description: Place not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Place not found
+    put:
+      summary: Update a place by ID
+      tags:
+        - Places
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Place ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceInput'
+      responses:
+        200:
+          description: Place updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Place'
+        404:
+          description: Place not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Place not found
+  /v1/routes/calculate-route:
+    post:
+      summary: Calculate a route between two places
+      tags:
+        - Routes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - from_place_id
+                - to_place_id
+                - travel_mode
+              properties:
+                from_place_id:
+                  type: string
+                  description: The ID of the starting place
+                to_place_id:
+                  type: string
+                  description: The ID of the destination place
+                travel_mode:
+                  type: string
+                  description: The mode of travel (e.g., driving, walking)
+      responses:
+        200:
+          description: The calculated route
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mode:
+                    type: string
+                    example: driving
+                  distance:
+                    type: number
+                    example: 312.55457498115675
+                  estimatedTime:
+                    type: number
+                    example: 187.53274498869405
+                  path:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: Point
+                        coordinates:
+                          type: array
+                          items:
+                            type: number
+                          example: [48.148597, 17.107748]
+        400:
+          description: Invalid input
+        500:
+          description: Internal server error
+  /docs:
+    get:
+      summary: OpenAPI documentation
+      description: Serves the OpenAPI documentation in HTML format.
+      tags:
+        - General
+      responses:
+        200:
+          description: OpenAPI documentation
+          content:
+            text/html:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: object
+components:
+  schemas:
+    Place:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+    PlaceInput:
+      type: object
+      required:
+        - name
+        - latitude
+        - longitude
+      properties:
+        name:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+
